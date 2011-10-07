@@ -12,8 +12,10 @@ import com.tatsun.lib.gles.GGLFont;
 import com.tatsun.lib.gles.GGLIBinderObject;
 import com.tatsun.lib.gles.GGLIndexBufferObject;
 import com.tatsun.lib.gles.GGLSpriteCoordFactory;
+import com.tatsun.lib.gles.GGLTexCoordBufferObject;
 import com.tatsun.lib.gles.GGLTexture;
 import com.tatsun.lib.gles.GGLUtils;
+import com.tatsun.lib.gles.GGLVertexBufferObject;
 import com.tatsun.lib.gles.GGLVertexCoordsBufferObject;
 import com.tatsun.lib.gles.helper.GGLCamera;
 import com.tatsun.lib.gles.helper.GGLSpriteAnimater;
@@ -60,12 +62,13 @@ public class TitleScene extends AbstractScene {
 		gl.glFrustumf(-1.5f, 1.5f, -1, 1, 1f, 100);
 		
 		gl.glMatrixMode(GL10.GL_MODELVIEW);
-		gl.glClearColor(0.675f, 0.843f, 0.898f, 1);
 		gl.glLoadIdentity();
 		
 		gl.glEnable(GL10.GL_DEPTH_TEST);
 		gl.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_FASTEST);
 		gl.glEnable(GL10.GL_TEXTURE_2D);
+		
+		drawBack(gl);
 		
 		cameraPlayer.applay(gl);
 	
@@ -76,12 +79,40 @@ public class TitleScene extends AbstractScene {
 		gl.glDisable(GL10.GL_DEPTH_TEST);
 	}
 
+	private void drawBack(GL11 gl11) {
+		GGLTexture texture = GLResources.textures[GLResources.TEXTURE_BACKGROUNDS_01];
+		GGLVertexBufferObject vbo = (GGLVertexBufferObject)GLResources.vbo[GLResources.VBO_SKY_01];
+		GGLTexCoordBufferObject tbo = (GGLTexCoordBufferObject)GLResources.vbo[GLResources.TBO_BACK_01];
+		GGLIBinderObject ibo = GLResources.vbo[GLResources.IBO_SKY_01];
+		texture.bind(gl11);
+		vbo.bind(gl11);
+		tbo.bind(gl11, 32);
+		for(int j = 0; j < 5; ++j) {
+			float row = 1 + j * 4;
+			for(int i = 0; i < 15; ++i) {
+				float col = -29 + i * 4;
+				gl11.glPushMatrix();
+				{
+					gl11.glTranslatef(col, row, 0);
+					ibo.draw(gl11);
+				}
+				gl11.glPopMatrix();
+			}
+		}
+		vbo.unbind(gl11);
+		tbo.unbind(gl11);
+		texture.unbind(gl11);
+
+	}
+	
 	private void drawFloor(GL11 gl11) {
 		GGLTexture texture = GLResources.textures[GLResources.TEXTURE_BACKGROUNDS_01];
-		GGLVertexCoordsBufferObject floorVbo = (GGLVertexCoordsBufferObject)GLResources.vbo[GLResources.VBO_FLOOR_01];
+		GGLVertexBufferObject floorVbo = (GGLVertexBufferObject)GLResources.vbo[GLResources.VBO_FLOOR_01];
+		GGLTexCoordBufferObject tbo = (GGLTexCoordBufferObject)GLResources.vbo[GLResources.TBO_BACK_01];
 		GGLIBinderObject floorIbo = GLResources.vbo[GLResources.IBO_FLOOR_01];
 		texture.bind(gl11);
-		floorVbo.bind(gl11, 2);
+		floorVbo.bind(gl11);
+		tbo.bind(gl11, 7);
 		for(int j = 0; j < 5; ++j) {
 			float row = -8 + j * 4;
 			for(int i = 0; i < 15; ++i) {
@@ -96,6 +127,7 @@ public class TitleScene extends AbstractScene {
 		}
 		gl11.glPopMatrix();
 		floorVbo.unbind(gl11);
+		tbo.unbind(gl11);
 		texture.unbind(gl11);
 	}
 	
